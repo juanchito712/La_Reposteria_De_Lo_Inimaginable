@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse - La Repostería Inimaginable</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial', sans-serif;
+            padding: 20px 0;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            margin: 20px 0;
+        }
+
+        .register-left {
+            flex: 1;
+            background: linear-gradient(135deg, #90E0EF 0%, #fad0c4 100%);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .register-left h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .register-left p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .register-left .icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .register-right {
+            flex: 1;
+            padding: 60px 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .register-right h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .register-right .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .password-strength {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .password-strength.weak {
+            color: #dc3545;
+        }
+
+        .password-strength.medium {
+            color: #ffc107;
+        }
+
+        .password-strength.strong {
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+                margin: 20px;
+                max-width: 100%;
+            }
+
+            .register-left {
+                padding: 40px 20px;
+                min-height: auto;
+            }
+
+            .register-left h1 {
+                font-size: 2rem;
+            }
+
+            .register-left .icon {
+                font-size: 3.5rem;
+                margin-bottom: 20px;
+            }
+
+            .register-left p {
+                font-size: 1rem;
+            }
+
+            .register-right {
+                padding: 40px 20px;
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .register-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .register-left {
+                padding: 30px 15px;
+            }
+
+            .register-left h1 {
+                font-size: 1.5rem;
+            }
+
+            .register-left .icon {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+
+            .register-left p {
+                font-size: 0.9rem;
+            }
+
+            .register-right {
+                padding: 30px 15px;
+                max-height: 85vh;
+            }
+
+            .register-right h2 {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .register-right .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
+
+            .form-control,
+            .input-group-text {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
+
+            .btn-register {
+                padding: 10px;
+                font-size: 0.95rem;
+                margin-top: 15px;
+            }
+
+            .password-strength {
+                font-size: 0.8rem;
+                margin-top: 3px;
+            }
+
+            .login-link {
+                font-size: 0.9rem;
+                margin-top: 15px;
+            }
+
+            .mb-3 {
+                margin-bottom: 15px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-left">
+            <div class="icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1>Únete a nosotros</h1>
+            <p>Crea tu cuenta y disfruta de nuestros productos artesanales</p>
+        </div>
+
+        <div class="register-right">
+            <h2>Crear Cuenta</h2>
+            <p class="subtitle">Completa tus datos</p>
+
+            <form id="registerForm">
+                <div class="mb-3">
+                    <label class="form-label">Nombre Completo *</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                               placeholder="Juan Pérez" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico *</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="tu@email.com" required title="El email debe tener al menos 2 caracteres después del punto">
+                    </div>
+                    <small class="text-muted">Ej: usuario@ejemplo.com</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <input type="tel" class="form-control" id="telefono" name="telefono" 
+                               placeholder="300 123 4567" pattern="[0-9\s]*" title="Solo se permiten números y espacios (máximo 10 dígitos)"
+                               inputmode="numeric" maxlength="13">
+                    </div>
+                    <small class="text-muted">Solo números (máximo 10 dígitos)</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </span>
+                        <input type="text" class="form-control" id="direccion" name="direccion" 
+                               placeholder="Calle 123 #45-67">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contraseña *</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Mínimo 6 caracteres" required minlength="6">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Confirmar Contraseña *</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                               placeholder="Repite tu contraseña" required>
+                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Acepto los <a href="#" class="text-decoration-none">términos y condiciones</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-register">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Crear Cuenta
+                </button>
+            </form>
+
+            <div class="login-link">
+                ¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="index.html" class="text-muted">
+                    <i class="fas fa-home me-1"></i>
+                    Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Toggle mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                password.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const password = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                password.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Validar fortaleza de contraseña
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            if (password.length === 0) {
+                strengthDiv.textContent = '';
+                strengthDiv.className = 'password-strength';
+            } else if (strength <= 2) {
+                strengthDiv.textContent = '⚠️ Contraseña débil';
+                strengthDiv.className = 'password-strength weak';
+            } else if (strength <= 3) {
+                strengthDiv.textContent = '⚡ Contraseña media';
+                strengthDiv.className = 'password-strength medium';
+            } else {
+                strengthDiv.textContent = '✅ Contraseña fuerte';
+                strengthDiv.className = 'password-strength strong';
+            }
+        });
+
+        // Permitir solo números en el campo de teléfono (máximo 10 dígitos)
+        document.getElementById('telefono').addEventListener('input', function() {
+            // Remover caracteres que no sean números
+            let valor = this.value.replace(/[^\d\s]/g, '');
+            
+            // Limitar a 10 dígitos
+            const digitos = valor.replace(/\D/g, '');
+            if (digitos.length > 10) {
+                valor = valor.substring(0, valor.lastIndexOf(digitos.charAt(10)));
+            }
+            
+            this.value = valor;
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const direccion = document.getElementById('direccion').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validaciones
+            if (!nombre || !email || !password) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campos incompletos',
+                    text: 'Por favor completa todos los campos obligatorios (*)',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            // Validar email (mínimo 2 letras después del punto)
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Email inválido',
+                    text: 'El email debe tener al menos 2 letras después del punto (ej: usuario@ejemplo.com)',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            // Validar teléfono (solo números si se proporciona)
+            if (telefono && !/^\d+$/.test(telefono.replace(/\s/g, ''))) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Teléfono inválido',
+                    text: 'El teléfono solo debe contener números',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            // Validar máximo 10 dígitos en teléfono
+            const digitosTeléfono = telefono.replace(/\D/g, '').length;
+            if (telefono && digitosTeléfono > 10) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Teléfono muy largo',
+                    text: 'El teléfono debe tener máximo 10 dígitos',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Contraseñas no coinciden',
+                    text: 'Las contraseñas deben ser iguales',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            if (password.length < 6) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Contraseña muy corta',
+                    text: 'La contraseña debe tener al menos 6 caracteres',
+                    confirmButtonColor: '#667eea'
+                });
+                return;
+            }
+
+            // Mostrar loader
+            Swal.fire({
+                title: 'Creando cuenta...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await api.register({
+                    nombre,
+                    email,
+                    password,
+                    telefono,
+                    direccion
+                });
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Cuenta creada!',
+                        text: `Bienvenido ${nombre}`,
+                        confirmButtonColor: '#667eea',
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'index.html';
+                    });
+                } else {
+                    throw new Error(response.error || 'Error al crear cuenta');
+                }
+            } catch (error) {
+                console.error('Error en registro:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al crear cuenta',
+                    text: error.message || 'Intenta con otro correo electrónico',
+                    confirmButtonColor: '#667eea'
+                });
+            }
+        });
+
+        // Verificar si ya está logueado
+        if (api.isAuthenticated()) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Ya tienes una sesión activa',
+                text: '¿Deseas continuar?',
+                showCancelButton: true,
+                confirmButtonText: 'Ir al inicio',
+                cancelButtonText: 'Cerrar sesión',
+                confirmButtonColor: '#667eea'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'index.html';
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    api.clearAuth();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

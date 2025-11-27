@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Verificador de Sesión - Admin Panel</h1>
+    
+    <div class="card">
+        <h2>Estado de Autenticación</h2>
+        <div id="authStatus"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Datos del Usuario</h2>
+        <div id="userData"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Token JWT</h2>
+        <div id="tokenInfo"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Acciones</h2>
+        <button class="btn-primary" onclick="recargar()">🔄 Recargar Datos</button>
+        <button class="btn-danger" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+        <button class="btn-success" onclick="irAlPanel()">📊 Ir al Panel Admin</button>
+    </div>
+
+    <script>
+        function verificarSesion() {
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            // Estado de autenticación
+            const authStatus = document.getElementById('authStatus');
+            if (token && userStr) {
+                authStatus.innerHTML = '<div class="status success">✅ <strong>Sesión Activa</strong></div>';
+            } else if (token && !userStr) {
+                authStatus.innerHTML = '<div class="status warning">⚠️ <strong>Token existe pero falta información de usuario</strong></div>';
+            } else if (!token && userStr) {
+                authStatus.innerHTML = '<div class="status warning">⚠️ <strong>Información de usuario existe pero falta token</strong></div>';
+            } else {
+                authStatus.innerHTML = '<div class="status error">❌ <strong>No hay sesión activa</strong></div>';
+            }
+            
+            // Datos del usuario
+            const userData = document.getElementById('userData');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    let html = '<pre>' + JSON.stringify(user, null, 2) + '</pre>';
+                    
+                    // Verificar rol
+                    if (user.rol === 'admin') {
+                        html += '<div class="status success">✅ <strong>ROL: ADMINISTRADOR</strong></div>';
+                    } else if (user.rol === 'cliente') {
+                        html += '<div class="status warning">⚠️ <strong>ROL: CLIENTE</strong> (No puede acceder al panel admin)</div>';
+                    } else {
+                        html += '<div class="status error">❌ <strong>ROL NO DEFINIDO</strong> - Esto causará problemas de acceso</div>';
+                    }
+                    
+                    userData.innerHTML = html;
+                } catch (e) {
+                    userData.innerHTML = '<div class="status error">❌ Error al parsear datos de usuario: ' + e.message + '</div>';
+                }
+            } else {
+                userData.innerHTML = '<div class="status error">❌ No hay datos de usuario en localStorage</div>';
+            }
+            
+            // Token
+            const tokenInfo = document.getElementById('tokenInfo');
+            if (token) {
+                try {
+                    // Decodificar token JWT (sin verificar firma)
+                    const parts = token.split('.');
+                    if (parts.length === 3) {
+                        const payload = JSON.parse(atob(parts[1]));
+                        const exp = new Date(payload.exp * 1000);
+                        const now = new Date();
+                        const isExpired = exp < now;
+                        
+                        let html = '<pre>' + JSON.stringify(payload, null, 2) + '</pre>';
+                        html += '<p><strong>Expira:</strong> ' + exp.toLocaleString('es-ES') + '</p>';
+                        
+                        if (isExpired) {
+                            html += '<div class="status error">❌ <strong>TOKEN EXPIRADO</strong></div>';
+                        } else {
+                            html += '<div class="status success">✅ <strong>TOKEN VÁLIDO</strong></div>';
+                        }
+                        
+                        tokenInfo.innerHTML = html;
+                    } else {
+                        tokenInfo.innerHTML = '<div class="status error">❌ Token con formato inválido</div>';
+                    }
+                } catch (e) {
+                    tokenInfo.innerHTML = '<div class="status error">❌ Error al decodificar token: ' + e.message + '</div>';
+                }
+            } else {
+                tokenInfo.innerHTML = '<div class="status error">❌ No hay token en localStorage</div>';
+            }
+        }
+        
+        function recargar() {
+            location.reload();
+        }
+        
+        function cerrarSesion() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('Sesión cerrada correctamente');
+                location.reload();
+            }
+        }
+        
+        function irAlPanel() {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert('No hay sesión activa. Por favor inicia sesión primero.');
+                return;
+            }
+            
+            const user = JSON.parse(userStr);
+            if (user.rol !== 'admin') {
+                alert('Tu usuario no tiene permisos de administrador.\nRol actual: ' + (user.rol || 'sin rol'));
+                return;
+            }
+            
+            window.location.href = '/admin/index.html';
+        }
+        
+        // Verificar al cargar
+        verificarSesion();
+        
+        // Actualizar cada 5 segundos
+        setInterval(verificarSesion, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "la_repoteria_inimaginable",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:productos\" \"npm run dev:carrito\"",
+    "dev:main": "npx nodemon server.js",
+    "dev:productos": "cd api_productos && npx nodemon server.js",
+    "dev:carrito": "cd api_carrito && npx nodemon server.js",
+    "start": "node server.js",
+    "start:principal": "npx nodemon server.js",
+    "start:productos": "cd api_productos && npx nodemon server.js",
+    "start:carrito": "cd api_carrito && npx nodemon server.js",
+    "start:all": "concurrently \"npm run dev:main\" \"npm run dev:productos\" \"npm run dev:carrito\"",
+    "install:all": "npm install && cd api_productos && npm install && cd .. && cd api_carrito && npm install && cd ..",
+    "copy-images": "node src/utils/copy-images.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.15.2",
+    "nodemailer": "^7.0.10",
+    "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.10"
+  }
+}

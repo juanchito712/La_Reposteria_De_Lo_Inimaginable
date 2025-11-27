@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeres Ocultos +18 - Repostería Exclusiva</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #8B008B 0%, #FF1493 100%);
+        }
+
+        .age-verification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .verification-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .verification-card h2 {
+            color: #8B008B;
+            margin-bottom: 20px;
+        }
+
+        .verification-card .warning-icon {
+            font-size: 4rem;
+            color: #FF1493;
+            margin-bottom: 20px;
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, #8B008B, #FF1493);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.3s;
+        }
+
+        .btn-verify:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .btn-exit {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B008B 0%, #FF1493 100%);
+        }
+
+        .section-title {
+            color: #FF1493;
+            border-bottom: 2px dashed #FF1493;
+        }
+
+        .adult-badge {
+            background: #FF1493;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .card {
+            border: 2px solid #FF1493;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Verificación de edad -->
+    <div class="age-verification" id="ageVerification">
+        <div class="verification-card">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Contenido para Adultos +18</h2>
+            <p class="text-muted">Esta sección contiene productos de contenido adulto.</p>
+            <p><strong>¿Eres mayor de 18 años?</strong></p>
+            <div class="mt-4">
+                <button class="btn btn-verify" onclick="verificarEdad(true)">
+                    <i class="fas fa-check"></i> Sí, soy mayor de 18
+                </button>
+                <button class="btn btn-exit" onclick="verificarEdad(false)">
+                    <i class="fas fa-times"></i> No, salir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal (oculto hasta verificación) -->
+    <div id="mainContent" style="display: none;">
+        <!-- Pantalla de carga -->
+        <div class="loading-screen" id="loadingScreen">
+            <div class="spinner"></div>
+            <div class="loading-text">Cargando Placeres Ocultos</div>
+            <div class="loading-subtext">Preparando productos especiales...</div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <!-- Información del usuario logueado -->
+            <div class="user-info" id="userInfo" style="display: none;">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName" style="background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px;">Invitado</span>
+                <a href="/admin/index.html" id="adminPanelBtn" class="ms-2 text-white" title="Panel de Administración" style="display: none; background: rgba(255,215,0,0.2); padding: 5px 10px; border-radius: 5px; text-decoration: none;">
+                    <i class="fas fa-shield-alt"></i> Admin
+                </a>
+                <a href="#" id="logoutBtn" class="ms-2 text-white" title="Cerrar Sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            
+            <!-- Botones de login/registro -->
+            <div class="auth-buttons" id="authButtons">
+                <a href="login.html" class="btn btn-outline-light me-2">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </a>
+            </div>
+            
+            <div class="container">
+                <h1 class="title">
+                    Placeres Ocultos
+                    <span class="adult-badge">+18</span>
+                </h1>
+                <p class="subtitle text-white">Productos Especiales para Ocasiones Únicas</p>
+                
+                <!-- Botón para volver -->
+                <div class="text-center mt-4">
+                    <a href="index.html" class="btn btn-special-link">
+                        <i class="fas fa-arrow-left"></i> Volver a Productos Normales
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Mensaje de advertencia -->
+            <div class="alert alert-warning mt-4" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Productos para adultos:</strong> Estos productos están diseñados para fiestas y celebraciones adultas. Manejo discreto garantizado.
+            </div>
+
+            <!-- Productos Especiales -->
+            <h2 class="section-title">
+                <i class="fas fa-heart"></i> Nuestros Productos Especiales
+            </h2>
+            
+            <div class="row" id="productosContainer">
+                <!-- Los productos se cargarán dinámicamente aquí -->
+            </div>
+
+            <!-- Mensaje cuando no hay productos -->
+            <div class="no-products" id="noProducts" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h4>No se encontraron productos especiales</h4>
+                <p>Vuelve pronto para ver nuestras novedades.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón Ir Arriba -->
+    <button id="scrollToTopBtn" class="scroll-to-top" title="Ir al inicio">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let usuarioLogueado = null;
+        let productosEspeciales = [];
+
+        const loadingScreen = document.getElementById('loadingScreen');
+        const productosContainer = document.getElementById('productosContainer');
+        const mainContent = document.getElementById('mainContent');
+        const ageVerification = document.getElementById('ageVerification');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const noProducts = document.getElementById('noProducts');
+
+        // Verificar edad (usar localStorage para recordar)
+        function verificarEdad(esMayor) {
+            if (esMayor) {
+                localStorage.setItem('age_verified', 'true');
+                ageVerification.style.display = 'none';
+                mainContent.style.display = 'block';
+                inicializar();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Verificar si ya se verificó la edad previamente
+        if (localStorage.getItem('age_verified') === 'true') {
+            ageVerification.style.display = 'none';
+            mainContent.style.display = 'block';
+            // Inicializar inmediatamente si ya está verificado
+            inicializar();
+        }
+
+        // Verificar sesión
+        async function verificarSesion() {
+            try {
+                if (!api.isAuthenticated()) {
+                    mostrarBotonesAuth();
+                    return;
+                }
+
+                const response = await api.getProfile();
+                
+                if (response.success) {
+                    usuarioLogueado = response.data;
+                    mostrarInfoUsuario();
+                }
+            } catch (error) {
+                console.error('Error verificando sesión:', error);
+                api.clearAuth();
+                mostrarBotonesAuth();
+            }
+        }
+
+        function mostrarBotonesAuth() {
+            if (userInfo) userInfo.style.display = 'none';
+            const authButtons = document.getElementById('authButtons');
+            if (authButtons) authButtons.style.display = 'block';
+        }
+
+        function mostrarInfoUsuario() {
+            if (usuarioLogueado) {
+                if (userName) {
+                    const nombreMostrar = usuarioLogueado.nombre_completo || 
+                                          usuarioLogueado.nombre || 
+                                          'Usuario';
+                    userName.textContent = nombreMostrar;
+                }
+                
+                if (userInfo) userInfo.style.display = 'block';
+                const authButtons = document.getElementById('authButtons');
+                if (authButtons) authButtons.style.display = 'none';
+                
+                // Mostrar botón de admin si el usuario es administrador
+                const adminPanelBtn = document.getElementById('adminPanelBtn');
+                if (adminPanelBtn) {
+                    if (usuarioLogueado.rol === 'admin') {
+                        adminPanelBtn.style.display = 'inline-block';
+                    } else {
+                        adminPanelBtn.style.display = 'none';
+                    }
+                }
+                
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn && !logoutBtn.hasAttribute('data-configured')) {
+                    logoutBtn.setAttribute('data-configured', 'true');
+                    logoutBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        logout();
+                    });
+                }
+            }
+        }
+
+        async function logout() {
+            const result = await Swal.fire({
+                title: '¿Cerrar sesión?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await api.logout();
+                    window.location.reload();
+                } catch (error) {
+                    api.clearAuth();
+                    window.location.reload();
+                }
+            }
+        }
+
+        // Cargar productos especiales (categoría "Tortas Especiales" - ID 2)
+        async function cargarProductosEspeciales() {
+            try {
+                console.log('🔍 Cargando productos de categoría 2...');
+                const response = await api.getProductosByCategoria(2);
+                console.log('✅ Respuesta recibida:', response);
+                
+                if (response.success && response.data) {
+                    productosEspeciales = response.data;
+                    console.log(`📦 ${productosEspeciales.length} productos cargados`);
+                    renderizarProductos();
+                } else {
+                    console.warn('⚠️ No se encontraron productos');
+                    noProducts.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('❌ Error cargando productos:', error);
+                noProducts.style.display = 'block';
+                // Mostrar mensaje de error más amigable
+                Swal.fire({
+                    title: 'Error de Conexión',
+                    text: 'No se pudieron cargar los productos. Por favor, recarga la página.',
+                    icon: 'error',
+                    confirmButtonText: 'Recargar',
+                    confirmButtonColor: '#8B008B'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        }
+
+        function renderizarProductos() {
+            productosContainer.innerHTML = '';
+
+            if (productosEspeciales.length === 0) {
+                noProducts.style.display = 'block';
+                return;
+            }
+
+            noProducts.style.display = 'none';
+
+            productosEspeciales.forEach(producto => {
+                productosContainer.appendChild(crearCardProducto(producto));
+            });
+        }
+
+        function crearCardProducto(producto) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
+
+            const precioFormateado = parseFloat(producto.precio).toLocaleString('es-CO');
+            const imagenUrl = producto.imagen_url || `/img/${producto.imagen}` || '/img/logo.jpg';
+
+            col.innerHTML = `
+                <div class="card h-100" style="position: relative;">
+                    <div class="destacado-badge" style="background: #FF1493;">+18</div>
+                    <img src="${imagenUrl}" class="card-img-top" alt="${producto.nombre}" 
+                         onerror="this.src='/img/logo.jpg'">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: #FF1493;">${producto.nombre}</h5>
+                        <p class="card-text">${producto.descripcion || 'Producto especial para adultos'}</p>
+                        <div class="stock-info">
+                            <i class="fas fa-box"></i> Stock: ${producto.stock || 0} unidades
+                        </div>
+                        <div class="price">$${precioFormateado}</div>
+                        <button class="btn btn-fruty btn-ordenar" 
+                                data-producto='${JSON.stringify(producto)}'
+                                style="background: linear-gradient(135deg, #8B008B, #FF1493);">
+                            <i class="fas fa-shopping-cart"></i> Ordenar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const btnOrdenar = col.querySelector('.btn-ordenar');
+            btnOrdenar.addEventListener('click', function() {
+                const productoData = JSON.parse(this.getAttribute('data-producto'));
+                manejarPedido(productoData);
+            });
+
+            return col;
+        }
+
+        async function manejarPedido(producto) {
+            if (!usuarioLogueado) {
+                const result = await Swal.fire({
+                    title: 'Inicia Sesión',
+                    text: 'Debes iniciar sesión para realizar pedidos',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Iniciar Sesión',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (result.isConfirmed) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: '🛒 Realizar Pedido',
+                html: `
+                    <div class="text-start">
+                        <p><strong>Producto:</strong> ${producto.nombre}</p>
+                        <p><strong>Precio:</strong> $${parseFloat(producto.precio).toLocaleString('es-CO')}</p>
+                        <hr>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad:</label>
+                            <input type="number" id="cantidad" class="form-control" value="1" min="1" max="${producto.stock || 10}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notas" class="form-label">Notas especiales (opcional):</label>
+                            <textarea id="notas" class="form-control" rows="3" placeholder="Instrucciones especiales..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección de entrega:</label>
+                            <input type="text" id="direccion" class="form-control" placeholder="Calle 123 #45-67">
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono de contacto:</label>
+                            <input type="tel" id="telefono" class="form-control" placeholder="300 123 4567">
+                        </div>
+                        <p class="text-muted"><i class="fas fa-lock"></i> Envío discreto garantizado</p>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar Pedido',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#8B008B',
+                preConfirm: () => {
+                    const cantidad = document.getElementById('cantidad').value;
+                    const notas = document.getElementById('notas').value;
+                    const direccion = document.getElementById('direccion').value;
+                    const telefono = document.getElementById('telefono').value;
+                    
+                    if (!cantidad || cantidad < 1) {
+                        Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+                        return false;
+                    }
+                    
+                    if (!direccion || direccion.trim() === '') {
+                        Swal.showValidationMessage('La dirección de entrega es obligatoria');
+                        return false;
+                    }
+                    
+                    if (!telefono || telefono.trim() === '') {
+                        Swal.showValidationMessage('El teléfono de contacto es obligatorio');
+                        return false;
+                    }
+                    
+                    return {
+                        cantidad: parseInt(cantidad),
+                        notas: notas.trim(),
+                        direccion: direccion.trim(),
+                        telefono: telefono.trim()
+                    };
+                }
+            });
+
+            if (result.isConfirmed) {
+                await procesarPedido(producto, result.value);
+            }
+        }
+
+        async function procesarPedido(producto, datosPedido) {
+            try {
+                const total = parseFloat(producto.precio) * datosPedido.cantidad;
+                
+                const pedidoData = {
+                    cliente_id: usuarioLogueado.id,
+                    productos: [
+                        {
+                            producto_id: producto.id,
+                            cantidad: datosPedido.cantidad,
+                            precio_unitario: producto.precio
+                        }
+                    ],
+                    direccion_entrega: datosPedido.direccion,
+                    telefono: datosPedido.telefono,
+                    notas: datosPedido.notas,
+                    total: total
+                };
+
+                const response = await api.createPedido(pedidoData);
+
+                if (response.success) {
+                    await Swal.fire({
+                        title: '¡Pedido Enviado!',
+                        html: `
+                            <div class="text-start">
+                                <h5>Resumen del Pedido:</h5>
+                                <p><strong>Producto:</strong> ${producto.nombre}</p>
+                                <p><strong>Cantidad:</strong> ${datosPedido.cantidad}</p>
+                                <p><strong>Total:</strong> $${total.toLocaleString('es-CO')}</p>
+                                <hr>
+                                <p class="text-muted"><i class="fas fa-lock"></i> Tu pedido será manejado con total discreción. Nos pondremos en contacto contigo pronto.</p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#8B008B'
+                    });
+                } else {
+                    throw new Error(response.error);
+                }
+            } catch (error) {
+                console.error('Error procesando pedido:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'No se pudo procesar el pedido',
+                    icon: 'error',
+                    confirmButtonText: 'Entendido'
+                });
+            }
+        }
+
+        async function inicializar() {
+            try {
+                // Carga más rápida - solo 300ms mínimo para transición suave
+                const tiempoMinimo = new Promise(resolve => setTimeout(resolve, 300));
+                
+                await Promise.all([
+                    verificarSesion(),
+                    cargarProductosEspeciales(),
+                    tiempoMinimo
+                ]);
+                
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+                
+            } catch (error) {
+                console.error('Error inicializando:', error);
+                loadingScreen.style.display = 'none';
+            }
+        }
+
+        // ===== BOTÓN IR ARRIBA =====
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>
