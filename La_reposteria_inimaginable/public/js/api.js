@@ -157,11 +157,21 @@ class API1 {
         });
     }
 
+    // Alias para compatibilidad
+    async createProducto(productoData) {
+        return this.crearProducto(productoData);
+    }
+
     async actualizarProducto(id, productoData) {
         return this.request(`/productos/${id}`, {
             method: 'PUT',
             body: JSON.stringify(productoData)
         });
+    }
+
+    // Alias para compatibilidad
+    async updateProducto(id, productoData) {
+        return this.actualizarProducto(id, productoData);
     }
 
     async eliminarProducto(id) {
@@ -170,10 +180,37 @@ class API1 {
         });
     }
 
+    // Alias para compatibilidad
+    async deleteProducto(id) {
+        return this.eliminarProducto(id);
+    }
+
     // Admin - Reportes
     async getReportesVentas(filtros = {}) {
         const query = new URLSearchParams(filtros).toString();
         return this.request(`/admin/reportes/ventas${query ? '?' + query : ''}`);
+    }
+
+    // Aliases para compatibilidad con dashboard.js
+    async getReporteVentas(fechaInicio, fechaFin) {
+        return this.getReportesVentas({
+            fechaInicio,
+            fechaFin
+        });
+    }
+
+    // Aliases para compatibilidad con usuarios.js
+    async updateUsuarioRol(id, nuevoRol) {
+        return this.actualizarRolUsuario(id, nuevoRol);
+    }
+
+    async deleteUsuario(id) {
+        return this.desactivarUsuario(id);
+    }
+
+    // Alias para compatibilidad con pedidos.js
+    async updateEstadoPedido(pedidoId, nuevoEstado) {
+        return this.actualizarEstadoPedidoAdmin(pedidoId, nuevoEstado);
     }
 
     // Métodos auxiliares
@@ -282,10 +319,10 @@ class API2 {
         });
     }
 
-    async procesarCompra(notas = '') {
+    async procesarCompra(datosCheckout = {}) {
         return this.request('/carrito/checkout', {
             method: 'POST',
-            body: JSON.stringify({ notas })
+            body: JSON.stringify(datosCheckout)
         });
     }
 

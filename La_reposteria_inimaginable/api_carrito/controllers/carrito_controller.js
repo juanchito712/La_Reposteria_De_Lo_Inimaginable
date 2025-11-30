@@ -362,6 +362,8 @@ exports.procesarCheckout = async (req, res) => {
     const { cliente_id, direccion_entrega, telefono, notas } = req.body;
     const clienteId = cliente_id;
 
+    // ============ VALIDACIONES ============
+
     if (!clienteId) {
       await connection.rollback();
       return res.status(400).json({
@@ -370,13 +372,70 @@ exports.procesarCheckout = async (req, res) => {
       });
     }
 
-    if (!direccion_entrega || !telefono) {
+    // Validar dirección
+    if (!direccion_entrega || typeof direccion_entrega !== 'string') {
       await connection.rollback();
       return res.status(400).json({
         success: false,
-        message: 'Dirección y teléfono son requeridos'
+        message: 'La dirección de entrega es requerida'
       });
     }
+
+    const direccionTrimmed = direccion_entrega.trim();
+    if (direccionTrimmed.length < 5) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'La dirección debe tener al menos 5 caracteres'
+      });
+    }
+
+    if (direccionTrimmed.length > 255) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'La dirección no puede exceder 255 caracteres'
+      });
+    }
+
+    // Validar teléfono
+    if (!telefono || typeof telefono !== 'string') {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'El teléfono de contacto es requerido'
+      });
+    }
+
+    const soloDigitos = telefono.replace(/\D/g, '');
+    if (soloDigitos.length < 7) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'El teléfono debe tener al menos 7 dígitos'
+      });
+    }
+
+    if (soloDigitos.length > 10) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'El teléfono no puede tener más de 10 dígitos'
+      });
+    }
+
+    // Validar notas (opcional pero con límite)
+    if (notas && typeof notas === 'string') {
+      if (notas.length > 500) {
+        await connection.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Las notas no pueden exceder 500 caracteres'
+        });
+      }
+    }
+
+    // ============ PROCESAR CHECKOUT ============
 
     // Obtener carrito y sus items
     const [carritos] = await connection.query(
@@ -428,7 +487,7 @@ exports.procesarCheckout = async (req, res) => {
       INSERT INTO pedido 
       (cliente_id, fecha_pedido, total, estado, direccion_entrega, telefono_entrega, notas)
       VALUES (?, NOW(), ?, 'pendiente', ?, ?, ?)
-    `, [clienteId, total, direccion_entrega, telefono, notas || null]);
+    `, [clienteId, total, direccionTrimmed, soloDigitos, notas ? notas.trim() : null]);
 
     const pedidoId = pedidoResult.insertId;
 
@@ -473,7 +532,7 @@ exports.procesarCheckout = async (req, res) => {
     console.error('Error en checkout:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al procesar el pedido'
+      message: error.message || 'Error al procesar el pedido'
     });
   } finally {
     connection.release();

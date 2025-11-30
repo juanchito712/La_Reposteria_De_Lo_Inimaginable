@@ -132,6 +132,12 @@
         <div class="header">
             <!-- Información del usuario logueado -->
             <div class="user-info" id="userInfo" style="display: none;">
+                <!-- Botón del carrito -->
+                <button id="btn-ver-carrito" class="btn btn-sm btn-outline-light me-2" style="position: relative; display: none;" id="header-carrito">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="carrito-contador" class="badge bg-danger" style="position: absolute; top: -5px; right: -5px; display: none;">0</span>
+                </button>
+                
                 <i class="fas fa-user-circle"></i>
                 <span id="userName" style="background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; margin: 0 5px;">Invitado</span>
                 <a href="/admin/index.html" id="adminPanelBtn" class="ms-2 text-white" title="Panel de Administración" style="display: none; background: rgba(255,215,0,0.2); padding: 5px 10px; border-radius: 5px; text-decoration: none;">
@@ -188,6 +194,32 @@
                 <p>Vuelve pronto para ver nuestras novedades.</p>
             </div>
         </div>
+
+        <!-- Modal del Carrito -->
+        <div id="carritoModal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #8B008B, #FF1493); color: white;">
+                        <h5 class="modal-title">
+                            <i class="fas fa-shopping-cart"></i> Mi Carrito
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="carritoContenido">
+                        <!-- Contenido del carrito se cargará aquí -->
+                    </div>
+                    <div class="modal-footer" style="background: #f8f9fa;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Cerrar
+                        </button>
+                        <button type="button" class="btn btn-success" id="irAlCheckout"
+                                style="background: linear-gradient(135deg, #8B008B, #FF1493); border: none;">
+                            <i class="fas fa-credit-card"></i> Proceder al Pago
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Botón Ir Arriba -->
@@ -199,6 +231,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/api.js"></script>
+    <script src="js/carrito.js"></script>
     <script>
         let usuarioLogueado = null;
         let productosEspeciales = [];
@@ -377,29 +410,29 @@
                             <i class="fas fa-box"></i> Stock: ${producto.stock || 0} unidades
                         </div>
                         <div class="price">$${precioFormateado}</div>
-                        <button class="btn btn-fruty btn-ordenar" 
+                        <button class="btn btn-fruty btn-agregar-carrito" 
                                 data-producto='${JSON.stringify(producto)}'
                                 style="background: linear-gradient(135deg, #8B008B, #FF1493);">
-                            <i class="fas fa-shopping-cart"></i> Ordenar
+                            <i class="fas fa-shopping-cart"></i> Agregar al Carrito
                         </button>
                     </div>
                 </div>
             `;
 
-            const btnOrdenar = col.querySelector('.btn-ordenar');
-            btnOrdenar.addEventListener('click', function() {
+            const btnAgregar = col.querySelector('.btn-agregar-carrito');
+            btnAgregar.addEventListener('click', function() {
                 const productoData = JSON.parse(this.getAttribute('data-producto'));
-                manejarPedido(productoData);
+                agregarAlCarrito(productoData);
             });
 
             return col;
         }
 
-        async function manejarPedido(producto) {
+        async function agregarAlCarrito(producto) {
             if (!usuarioLogueado) {
                 const result = await Swal.fire({
                     title: 'Inicia Sesión',
-                    text: 'Debes iniciar sesión para realizar pedidos',
+                    text: 'Debes iniciar sesión para usar el carrito',
                     icon: 'info',
                     showCancelButton: true,
                     confirmButtonText: 'Iniciar Sesión',
@@ -413,119 +446,66 @@
             }
 
             const result = await Swal.fire({
-                title: '🛒 Realizar Pedido',
+                title: '🛒 Agregar al Carrito',
                 html: `
                     <div class="text-start">
                         <p><strong>Producto:</strong> ${producto.nombre}</p>
                         <p><strong>Precio:</strong> $${parseFloat(producto.precio).toLocaleString('es-CO')}</p>
                         <hr>
                         <div class="mb-3">
-                            <label for="cantidad" class="form-label">Cantidad:</label>
+                            <label for="cantidad" class="form-label">Cantidad: <span class="text-danger">*</span></label>
                             <input type="number" id="cantidad" class="form-control" value="1" min="1" max="${producto.stock || 10}">
+                            <small class="form-text text-muted">Máximo disponible: ${producto.stock || 10}</small>
                         </div>
-                        <div class="mb-3">
-                            <label for="notas" class="form-label">Notas especiales (opcional):</label>
-                            <textarea id="notas" class="form-control" rows="3" placeholder="Instrucciones especiales..."></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="direccion" class="form-label">Dirección de entrega:</label>
-                            <input type="text" id="direccion" class="form-control" placeholder="Calle 123 #45-67">
-                        </div>
-                        <div class="mb-3">
-                            <label for="telefono" class="form-label">Teléfono de contacto:</label>
-                            <input type="tel" id="telefono" class="form-control" placeholder="300 123 4567">
-                        </div>
-                        <p class="text-muted"><i class="fas fa-lock"></i> Envío discreto garantizado</p>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Confirmar Pedido',
+                confirmButtonText: 'Agregar al Carrito',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#8B008B',
+                confirmButtonColor: '#FF1493',
                 preConfirm: () => {
-                    const cantidad = document.getElementById('cantidad').value;
-                    const notas = document.getElementById('notas').value;
-                    const direccion = document.getElementById('direccion').value;
-                    const telefono = document.getElementById('telefono').value;
+                    const cantidad = document.getElementById('cantidad').value.trim();
                     
                     if (!cantidad || cantidad < 1) {
                         Swal.showValidationMessage('La cantidad debe ser mayor a 0');
                         return false;
                     }
                     
-                    if (!direccion || direccion.trim() === '') {
-                        Swal.showValidationMessage('La dirección de entrega es obligatoria');
-                        return false;
-                    }
-                    
-                    if (!telefono || telefono.trim() === '') {
-                        Swal.showValidationMessage('El teléfono de contacto es obligatorio');
+                    if (parseInt(cantidad) > (producto.stock || 10)) {
+                        Swal.showValidationMessage(`La cantidad no puede exceder el stock disponible (${producto.stock || 10})`);
                         return false;
                     }
                     
                     return {
-                        cantidad: parseInt(cantidad),
-                        notas: notas.trim(),
-                        direccion: direccion.trim(),
-                        telefono: telefono.trim()
+                        cantidad: parseInt(cantidad)
                     };
                 }
             });
 
             if (result.isConfirmed) {
-                await procesarPedido(producto, result.value);
-            }
-        }
-
-        async function procesarPedido(producto, datosPedido) {
-            try {
-                const total = parseFloat(producto.precio) * datosPedido.cantidad;
-                
-                const pedidoData = {
-                    cliente_id: usuarioLogueado.id,
-                    productos: [
-                        {
-                            producto_id: producto.id,
-                            cantidad: datosPedido.cantidad,
-                            precio_unitario: producto.precio
-                        }
-                    ],
-                    direccion_entrega: datosPedido.direccion,
-                    telefono: datosPedido.telefono,
-                    notas: datosPedido.notas,
-                    total: total
-                };
-
-                const response = await api.createPedido(pedidoData);
-
-                if (response.success) {
+                try {
+                    await carritoManager.agregarAlCarrito(producto.id, result.value.cantidad);
+                    
                     await Swal.fire({
-                        title: '¡Pedido Enviado!',
+                        title: '✅ Agregado!',
                         html: `
-                            <div class="text-start">
-                                <h5>Resumen del Pedido:</h5>
-                                <p><strong>Producto:</strong> ${producto.nombre}</p>
-                                <p><strong>Cantidad:</strong> ${datosPedido.cantidad}</p>
-                                <p><strong>Total:</strong> $${total.toLocaleString('es-CO')}</p>
-                                <hr>
-                                <p class="text-muted"><i class="fas fa-lock"></i> Tu pedido será manejado con total discreción. Nos pondremos en contacto contigo pronto.</p>
-                            </div>
+                            <p><strong>${producto.nombre}</strong> se agregó al carrito.</p>
+                            <p><strong>Cantidad:</strong> ${result.value.cantidad}</p>
+                            <small class="text-muted">Puedes continuar comprando o revisar tu carrito.</small>
                         `,
                         icon: 'success',
                         confirmButtonText: 'Entendido',
-                        confirmButtonColor: '#8B008B'
+                        confirmButtonColor: '#FF1493'
                     });
-                } else {
-                    throw new Error(response.error);
+                } catch (error) {
+                    console.error('Error agregando al carrito:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: error.message || 'No se pudo agregar al carrito',
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
                 }
-            } catch (error) {
-                console.error('Error procesando pedido:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: error.message || 'No se pudo procesar el pedido',
-                    icon: 'error',
-                    confirmButtonText: 'Entendido'
-                });
             }
         }
 

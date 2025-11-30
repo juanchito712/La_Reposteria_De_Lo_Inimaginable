@@ -149,6 +149,9 @@ export const vaciarCarrito = async (req, res) => {
 export const checkout = async (req, res) => {
     try {
         const cliente_id = req.usuario.id;
+        const { direccion_entrega, telefono, notas } = req.body;
+
+        // Los datos ya fueron validados por el middleware validarCheckout
 
         // Obtener carrito del usuario
         const carrito = await CarritoModel.getCarritoDetallado(cliente_id);
@@ -163,22 +166,23 @@ export const checkout = async (req, res) => {
         // Obtener datos del cliente
         const cliente = await ClienteModel.getById(cliente_id);
 
-        // Crear pedido
+        // Preparar detalles del pedido
+        const detalles = carrito.items.map(item => ({
+            producto_id: item.producto_id,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio,
+            subtotal: item.cantidad * item.precio
+        }));
+
+        // Crear pedido con detalles
         const pedidoId = await PedidoModel.create({
             cliente_id,
             total: carrito.total,
-            estado: 'pendiente',
-            notas: req.body.notas || ''
+            direccion_entrega,
+            telefono_entrega: telefono,
+            notas: notas || null,
+            detalles: detalles
         });
-
-        // Agregar items del carrito al pedido (detalles)
-        for (const item of carrito.items) {
-            await PedidoModel.agregarDetalle(pedidoId, {
-                producto_id: item.producto_id,
-                cantidad: item.cantidad,
-                precio_unitario: item.precio
-            });
-        }
 
         // Vaciar carrito
         await CarritoModel.vaciarCarrito(cliente_id);
@@ -190,6 +194,8 @@ export const checkout = async (req, res) => {
             cliente_nombre: cliente.nombre,
             items: carrito.items,
             total: carrito.total,
+            direccion: direccion_entrega,
+            telefono: telefono,
             fecha: new Date()
         };
 
@@ -198,17 +204,19 @@ export const checkout = async (req, res) => {
         res.json({
             success: true,
             message: 'Pedido creado exitosamente',
-            data: {
-                pedido_id: pedidoId,
+            pedido: {
+                id: pedidoId,
                 total: carrito.total,
-                estado: 'pendiente'
+                estado: 'pendiente',
+                direccion: direccion_entrega,
+                telefono: telefono
             }
         });
     } catch (error) {
         console.error('Error en checkout:', error);
         res.status(500).json({
             success: false,
-            error: 'Error al procesar la compra'
+            error: error.message || 'Error al procesar la compra'
         });
     }
 };

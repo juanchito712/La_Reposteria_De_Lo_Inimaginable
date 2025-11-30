@@ -48,20 +48,14 @@ export const createPedido = async (req, res) => {
     try {
         const pedidoData = req.body;
         
-        // Validar datos requeridos
-        if (!pedidoData.cliente_id || !pedidoData.productos || pedidoData.productos.length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'Datos incompletos para crear el pedido'
-            });
-        }
+        // Los datos ya fueron validados por el middleware validarPedido
+        // Solo convertimos y creamos el pedido
         
-        // Convertir 'productos' a 'detalles' con el formato correcto
         const pedidoCompleto = {
             cliente_id: pedidoData.cliente_id,
-            total: pedidoData.total || 0,
+            total: pedidoData.total,
             direccion_entrega: pedidoData.direccion_entrega,
-            telefono_entrega: pedidoData.telefono || null,
+            telefono_entrega: pedidoData.telefono,
             notas: pedidoData.notas || null,
             detalles: pedidoData.productos.map(prod => ({
                 producto_id: prod.producto_id,

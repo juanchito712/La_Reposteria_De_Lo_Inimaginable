@@ -83,6 +83,105 @@ class API1 {
         return this.request(`/productos/search?q=${encodeURIComponent(query)}`);
     }
 
+    // Admin - Productos
+    async crearProducto(productoData) {
+        return this.request('/productos', {
+            method: 'POST',
+            body: JSON.stringify(productoData)
+        });
+    }
+
+    // Alias para compatibilidad
+    async createProducto(productoData) {
+        return this.crearProducto(productoData);
+    }
+
+    async actualizarProducto(id, productoData) {
+        return this.request(`/productos/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(productoData)
+        });
+    }
+
+    // Alias para compatibilidad
+    async updateProducto(id, productoData) {
+        return this.actualizarProducto(id, productoData);
+    }
+
+    async eliminarProducto(id) {
+        return this.request(`/productos/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Alias para compatibilidad
+    async deleteProducto(id) {
+        return this.eliminarProducto(id);
+    }
+
+    // Admin - Dashboard
+    async getDashboardStats() {
+        return this.request('/admin/dashboard/stats');
+    }
+
+    // Admin - Usuarios
+    async getUsuarios() {
+        return this.request('/admin/usuarios');
+    }
+
+    async actualizarRolUsuario(id, rol) {
+        return this.request(`/admin/usuarios/${id}/rol`, {
+            method: 'PUT',
+            body: JSON.stringify({ rol })
+        });
+    }
+
+    async desactivarUsuario(id) {
+        return this.request(`/admin/usuarios/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    // Admin - Pedidos
+    async getTodosPedidos() {
+        return this.request('/admin/pedidos');
+    }
+
+    async actualizarEstadoPedidoAdmin(id, estado) {
+        return this.request(`/admin/pedidos/${id}/estado`, {
+            method: 'PUT',
+            body: JSON.stringify({ estado })
+        });
+    }
+
+    // Admin - Reportes
+    async getReportesVentas(filtros = {}) {
+        const query = new URLSearchParams(filtros).toString();
+        return this.request(`/admin/reportes/ventas${query ? '?' + query : ''}`);
+    }
+
+    // Aliases para compatibilidad con dashboard.js
+    async getReporteVentas(fechaInicio, fechaFin) {
+        return this.getReportesVentas({
+            fechaInicio,
+            fechaFin
+        });
+    }
+
+    // Aliases para compatibilidad con usuarios.js
+    async updateUsuarioRol(id, nuevoRol) {
+        return this.actualizarRolUsuario(id, nuevoRol);
+    }
+
+    async deleteUsuario(id) {
+        return this.desactivarUsuario(id);
+    }
+
+    // Alias para compatibilidad con pedidos.js
+    async updateEstadoPedido(pedidoId, nuevoEstado) {
+        return this.actualizarEstadoPedidoAdmin(pedidoId, nuevoEstado);
+    }
+
     // Categorías
     async getCategorias() {
         return this.request('/categorias');
@@ -180,10 +279,10 @@ class API2 {
         });
     }
 
-    async procesarCompra(notas = '') {
+    async procesarCompra(datosCheckout = {}) {
         return this.request('/carrito/checkout', {
             method: 'POST',
-            body: JSON.stringify({ notas })
+            body: JSON.stringify(datosCheckout)
         });
     }
 

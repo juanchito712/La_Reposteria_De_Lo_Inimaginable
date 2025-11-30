@@ -532,16 +532,24 @@ async function manejarPedido(producto) {
                 <p><strong>Precio:</strong> $${parseFloat(producto.precio).toLocaleString('es-CO')}</p>
                 <hr>
                 <div class="mb-3">
-                    <label for="cantidad" class="form-label">Cantidad:</label>
+                    <label for="cantidad" class="form-label">Cantidad: <span class="text-danger">*</span></label>
                     <input type="number" id="cantidad" class="form-control" value="1" min="1" max="${producto.stock || 10}">
+                    <small class="form-text text-muted">Máximo disponible: ${producto.stock || 10}</small>
+                </div>
+                <div class="mb-3">
+                    <label for="direccion" class="form-label">Dirección de entrega: <span class="text-danger">*</span></label>
+                    <input type="text" id="direccion" class="form-control" placeholder="Ej: Calle 123, Apartamento 45" maxlength="255">
+                    <small class="form-text text-muted">Mínimo 5 caracteres</small>
+                </div>
+                <div class="mb-3">
+                    <label for="telefono" class="form-label">Teléfono de contacto: <span class="text-danger">*</span></label>
+                    <input type="tel" id="telefono" class="form-control" placeholder="Ej: 3001234567" maxlength="10" inputmode="numeric">
+                    <small class="form-text text-muted">Máximo 10 dígitos (sin espacios ni caracteres especiales)</small>
                 </div>
                 <div class="mb-3">
                     <label for="notas" class="form-label">Notas especiales (opcional):</label>
-                    <textarea id="notas" class="form-control" rows="3" placeholder="Instrucciones especiales para tu pedido..."></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="direccion" class="form-label">Dirección de entrega:</label>
-                    <input type="text" id="direccion" class="form-control" placeholder="Calle 123 #45-67">
+                    <textarea id="notas" class="form-control" rows="3" placeholder="Instrucciones especiales para tu pedido..." maxlength="500"></textarea>
+                    <small class="form-text text-muted"><span id="notasCount">0</span>/500 caracteres</small>
                 </div>
             </div>
         `,
@@ -549,25 +557,82 @@ async function manejarPedido(producto) {
         confirmButtonText: 'Confirmar Pedido',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#e91e63',
-        preConfirm: () => {
-            const cantidad = document.getElementById('cantidad').value;
-            const notas = document.getElementById('notas').value;
-            const direccion = document.getElementById('direccion').value;
+        didOpen: (modal) => {
+            // Agregar contador de caracteres para notas
+            const notasInput = document.getElementById('notas');
+            const notasCount = document.getElementById('notasCount');
             
+            notasInput.addEventListener('input', () => {
+                notasCount.textContent = notasInput.value.length;
+            });
+            
+            // Validar solo dígitos en teléfono
+            const telefonoInput = document.getElementById('telefono');
+            telefonoInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+            });
+        },
+        preConfirm: () => {
+            const cantidad = document.getElementById('cantidad').value.trim();
+            const direccion = document.getElementById('direccion').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const notas = document.getElementById('notas').value.trim();
+            
+            // Validación de cantidad
             if (!cantidad || cantidad < 1) {
                 Swal.showValidationMessage('La cantidad debe ser mayor a 0');
                 return false;
             }
             
-            if (!direccion || direccion.trim() === '') {
+            if (parseInt(cantidad) > (producto.stock || 10)) {
+                Swal.showValidationMessage(`La cantidad no puede exceder el stock disponible (${producto.stock || 10})`);
+                return false;
+            }
+            
+            // Validación de dirección
+            if (!direccion) {
                 Swal.showValidationMessage('La dirección de entrega es obligatoria');
+                return false;
+            }
+            
+            if (direccion.length < 5) {
+                Swal.showValidationMessage('La dirección debe tener al menos 5 caracteres');
+                return false;
+            }
+            
+            if (direccion.length > 255) {
+                Swal.showValidationMessage('La dirección no puede exceder 255 caracteres');
+                return false;
+            }
+            
+            // Validación de teléfono
+            if (!telefono) {
+                Swal.showValidationMessage('El teléfono de contacto es obligatorio');
+                return false;
+            }
+            
+            const soloDigitos = telefono.replace(/\D/g, '');
+            if (soloDigitos.length < 7) {
+                Swal.showValidationMessage('El teléfono debe tener al menos 7 dígitos');
+                return false;
+            }
+            
+            if (soloDigitos.length > 10) {
+                Swal.showValidationMessage('El teléfono no puede tener más de 10 dígitos');
+                return false;
+            }
+            
+            // Validación de notas (opcional pero con límite)
+            if (notas.length > 500) {
+                Swal.showValidationMessage('Las notas no pueden exceder 500 caracteres');
                 return false;
             }
             
             return {
                 cantidad: parseInt(cantidad),
-                notas: notas.trim(),
-                direccion: direccion.trim()
+                direccion: direccion,
+                telefono: soloDigitos,
+                notas: notas
             };
         }
     });
@@ -593,7 +658,7 @@ async function procesarPedido(producto, datosPedido) {
                 }
             ],
             direccion_entrega: datosPedido.direccion,
-            telefono: datosPedido.telefono || null,
+            telefono: datosPedido.telefono,
             notas: datosPedido.notas,
             total: total
         };
@@ -610,8 +675,9 @@ async function procesarPedido(producto, datosPedido) {
                         <p><strong>Cantidad:</strong> ${datosPedido.cantidad}</p>
                         <p><strong>Precio unitario:</strong> $${parseFloat(producto.precio).toLocaleString('es-CO')}</p>
                         <p><strong>Total:</strong> $${total.toLocaleString('es-CO')}</p>
-                        ${datosPedido.notas ? `<p><strong>Notas:</strong> ${datosPedido.notas}</p>` : ''}
                         <p><strong>Dirección:</strong> ${datosPedido.direccion}</p>
+                        <p><strong>Teléfono:</strong> ${datosPedido.telefono}</p>
+                        ${datosPedido.notas ? `<p><strong>Notas:</strong> ${datosPedido.notas}</p>` : ''}
                         <hr>
                         <p class="text-muted">Tu pedido ha sido registrado exitosamente. Nos pondremos en contacto contigo pronto.</p>
                     </div>

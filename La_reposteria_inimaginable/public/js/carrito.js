@@ -320,15 +320,19 @@ class CarritoManager {
   async procesarCheckout(datosEntrega) {
     try {
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+      
+      // El API de carrito (3002) requiere cliente_id porque no usa autenticación JWT
+      const datosCompletos = {
+        cliente_id: usuario.id,
+        ...datosEntrega
+      };
+
       const response = await fetch(`${this.apiUrl}/checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          cliente_id: usuario.id,
-          ...datosEntrega
-        })
+        body: JSON.stringify(datosCompletos)
       });
 
       const data = await response.json();
@@ -339,7 +343,9 @@ class CarritoManager {
           title: '¡Pedido creado!',
           html: `
             <p><strong>Número de pedido:</strong> #${data.pedido.id}</p>
-            <p><strong>Total:</strong> $${data.pedido.total}</p>
+            <p><strong>Total:</strong> $${parseFloat(data.pedido.total).toLocaleString('es-CO')}</p>
+            <p><strong>Items:</strong> ${data.pedido.items}</p>
+            <hr>
             <p>Recibirás una confirmación por email</p>
           `,
           confirmButtonText: 'Entendido'
@@ -351,7 +357,7 @@ class CarritoManager {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: data.message
+          text: data.message || data.error || 'No se pudo procesar el pedido'
         });
       }
     } catch (error) {
@@ -585,16 +591,19 @@ class CarritoManager {
       html: `
         <div style="text-align: left; padding: 0 20px;">
           <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Dirección de entrega *</label>
-            <input id="swal-direccion" class="swal2-input" style="margin: 0; width: 100%;" placeholder="Ej: Calle 123, Ciudad">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Dirección de entrega <span style="color: red;">*</span></label>
+            <input id="swal-direccion" class="swal2-input" style="margin: 0; width: 100%;" placeholder="Ej: Calle 123, Apartamento 45" maxlength="255">
+            <small style="color: #666; display: block; margin-top: 3px;">Mínimo 5 caracteres</small>
           </div>
           <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Teléfono de contacto *</label>
-            <input id="swal-telefono" type="tel" class="swal2-input" style="margin: 0; width: 100%;" placeholder="Ej: 3001234567">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Teléfono de contacto <span style="color: red;">*</span></label>
+            <input id="swal-telefono" type="tel" class="swal2-input" style="margin: 0; width: 100%;" placeholder="Ej: 3001234567" maxlength="10" inputmode="numeric">
+            <small style="color: #666; display: block; margin-top: 3px;">Máximo 10 dígitos (sin espacios ni caracteres especiales)</small>
           </div>
           <div style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px; font-weight: 600;">Notas adicionales (opcional)</label>
-            <textarea id="swal-notas" class="swal2-textarea" style="margin: 0; width: 100%;" placeholder="Instrucciones especiales, referencias, etc."></textarea>
+            <textarea id="swal-notas" class="swal2-textarea" style="margin: 0; width: 100%; resize: vertical; min-height: 80px;" placeholder="Instrucciones especiales, referencias, etc." maxlength="500"></textarea>
+            <small style="color: #666; display: block; margin-top: 3px;"><span id="swal-notas-count">0</span>/500 caracteres</small>
           </div>
         </div>
       `,
@@ -603,17 +612,70 @@ class CarritoManager {
       confirmButtonText: 'Confirmar Pedido',
       cancelButtonText: 'Cancelar',
       width: '600px',
+      didOpen: (modal) => {
+        // Agregar contador de caracteres para notas
+        const notasInput = document.getElementById('swal-notas');
+        const notasCount = document.getElementById('swal-notas-count');
+        
+        notasInput.addEventListener('input', () => {
+          notasCount.textContent = notasInput.value.length;
+        });
+        
+        // Validar solo dígitos en teléfono
+        const telefonoInput = document.getElementById('swal-telefono');
+        telefonoInput.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        });
+      },
       preConfirm: () => {
         const direccion = document.getElementById('swal-direccion').value.trim();
         const telefono = document.getElementById('swal-telefono').value.trim();
         const notas = document.getElementById('swal-notas').value.trim();
         
-        if (!direccion || !telefono) {
-          Swal.showValidationMessage('Dirección y teléfono son requeridos');
+        // Validación de dirección
+        if (!direccion) {
+          Swal.showValidationMessage('La dirección de entrega es obligatoria');
           return false;
         }
         
-        return { direccion_entrega: direccion, telefono, notas };
+        if (direccion.length < 5) {
+          Swal.showValidationMessage('La dirección debe tener al menos 5 caracteres');
+          return false;
+        }
+        
+        if (direccion.length > 255) {
+          Swal.showValidationMessage('La dirección no puede exceder 255 caracteres');
+          return false;
+        }
+        
+        // Validación de teléfono
+        if (!telefono) {
+          Swal.showValidationMessage('El teléfono de contacto es obligatorio');
+          return false;
+        }
+        
+        const soloDigitos = telefono.replace(/\D/g, '');
+        if (soloDigitos.length < 7) {
+          Swal.showValidationMessage('El teléfono debe tener al menos 7 dígitos');
+          return false;
+        }
+        
+        if (soloDigitos.length > 10) {
+          Swal.showValidationMessage('El teléfono no puede tener más de 10 dígitos');
+          return false;
+        }
+        
+        // Validación de notas (opcional pero con límite)
+        if (notas.length > 500) {
+          Swal.showValidationMessage('Las notas no pueden exceder 500 caracteres');
+          return false;
+        }
+        
+        return { 
+          direccion_entrega: direccion, 
+          telefono: soloDigitos, 
+          notas: notas 
+        };
       }
     });
 
