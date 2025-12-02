@@ -12,8 +12,8 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS `la_repoteria_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `la_repoteria_db`;
+CREATE DATABASE IF NOT EXISTS `la_reposteria` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `la_reposteria`;
 
 -- ============================================
 -- TABLA: categoria
